@@ -1,0 +1,8 @@
+services:
+  api-gateway:
+    build:
+      context: ./apps/api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    restart: always
