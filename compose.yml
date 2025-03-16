@@ -5,4 +5,6 @@ services:
     container_name: api-gateway
     ports:
       - "3000:3000"
+    environment:
+      SECRET_WORD: ${SECRET_WORD}
     restart: always
