@@ -1,13 +1,17 @@
 import {Hono} from "hono";
 import {serve} from "@hono/node-server";
 import dotenv from 'dotenv'
+import {sendMessage} from "./queue";
 
 dotenv.config()
 const app = new Hono()
 
 const secret = process.env.SECRET_WORD ?? "No word defined"
 
-app.get('/', c => {
+app.post('/', async c => {
+    const body = await c.req.json()
+    console.log(body)
+    await sendMessage("user_queue", body.message as string)
     return c.json({
         message: 'Hello Hono !',
         secret: secret,

@@ -1,4 +1,11 @@
 services:
+  # Service RabbitMQ
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - '5672:5672'  # Broker
+      - '15672:15672' # Interface web
+
   api-gateway:
     build:
       context: ./apps/api-gateway
@@ -7,4 +14,17 @@ services:
       - "3000:3000"
     environment:
       SECRET_WORD: ${SECRET_WORD}
+      RABBITMQ_URL: amqp://rabbitmq
     restart: always
+    depends_on:
+      - rabbitmq
+
+  user-service:
+    build:
+      context: ./apps/user-service
+    container_name: user-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+    restart: always
+    depends_on:
+      - rabbitmq
