@@ -4,7 +4,7 @@
   "description": "Api gateway servant d'interface entre l'application frondend et les micro-services de Tickly",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "tsx watch ./src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,8 +14,7 @@
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
     "@types/node": "^22.13.10",
-    "nodemon": "^3.1.9",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   },
   "dependencies": {
