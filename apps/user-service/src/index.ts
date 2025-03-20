@@ -1,30 +1,24 @@
-import amqplib from 'amqplib/callback_api'
-import dotenv from 'dotenv'
+import {CreateUserListener} from "./listeners/create-user-listener";
+import {RabbitMQ} from "./config/rabbitmq";
+import {DATABASE_URL, queue, RABBITMQ_URL} from "./config/env";
+import {Users} from "./db/users";
 
-dotenv.config()
-const RABBITMQ_URL = process.env.RABBITMQ_URL
-const queue = 'user_queue'
+(async () => {
+    try {
+        await main()
+    } catch (err) {
+        console.error("Error starting the service:", err);
+    }
+})()
 
-if (!RABBITMQ_URL) {
-    throw new Error(`No RabbitMQ url provided`)
+async function main() {
+    console.log("Starting User Service...");
+
+    const rabbitMQ = new RabbitMQ(RABBITMQ_URL)
+    await rabbitMQ.connect()
+
+    const users = new Users(DATABASE_URL)
+
+    await rabbitMQ.consume(queue, msg => new CreateUserListener(users).onMessage(msg))
+    console.log(`Ready to receive messages from ${queue}`)
 }
-
-amqplib.connect(RABBITMQ_URL, (err, conn) => {
-    if (err) throw err
-
-    conn.createChannel((err1, ch) => {
-        if (err1) throw err1
-
-        ch.assertQueue(queue, { durable: true })
-
-        console.log(`👂 User-Service écoute sur ${queue}...`);
-        ch.consume(queue, msg => {
-            if (msg !== null) {
-                console.log(`📩 Message reçu: ${msg.content.toString()}`);
-                ch.ack(msg)
-            } else {
-                console.log("❌ Consumer cancelled by server")
-            }
-        })
-    })
-})

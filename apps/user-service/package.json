@@ -6,19 +6,25 @@
   "scripts": {
     "dev": "tsx watch ./src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ewennn_",
   "license": "ISC",
   "devDependencies": {
     "@types/amqplib": "^0.10.7",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^22.13.10",
+    "@types/pg": "^8.11.11",
+    "drizzle-kit": "^0.30.5",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   },
   "dependencies": {
     "amqplib": "^0.10.5",
-    "dotenv": "^16.4.7"
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.1",
+    "pg": "^8.14.1"
   }
 }

@@ -5,7 +5,14 @@ services:
     ports:
       - '5672:5672'  # Broker
       - '15672:15672' # Interface web
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 30s
+    networks:
+      - tickly-global
 
+  # Gateway
   api-gateway:
     build:
       context: ./apps/api-gateway
@@ -17,14 +24,49 @@ services:
       RABBITMQ_URL: amqp://rabbitmq
     restart: always
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+    networks:
+      - tickly-global
 
+  # Service utilisateurs
   user-service:
     build:
       context: ./apps/user-service
     container_name: user-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
+      DATABASE_URL: postgresql://root:root@user-service-database:5432/public
     restart: always
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      user-service-database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - tickly-global
+      - user-service-network
+
+  # Base de données service utilisateurs
+  user-service-database:
+    image: postgres:17.4
+    container_name: user-service-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: public
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d public"]
+      interval: 5s
+      timeout: 30s
+    networks:
+      - user-service-network
+
+networks:
+  tickly-global:
+    driver: bridge
+  user-service-network:
+    driver: bridge
