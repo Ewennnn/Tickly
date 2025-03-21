@@ -1,4 +1,13 @@
 services:
+  frontend:
+    build:
+      context: ./tickly-front
+    container_name: frontend
+    ports:
+      - "4000:4000"
+    networks:
+      - exposed-gateway
+
   # Service RabbitMQ
   rabbitmq:
     image: rabbitmq:management
@@ -28,6 +37,7 @@ services:
         condition: service_healthy
         restart: true
     networks:
+      - exposed-gateway
       - tickly-global
 
   # Service utilisateurs
@@ -66,6 +76,8 @@ services:
       - user-service-network
 
 networks:
+  exposed-gateway:
+    driver: bridge
   tickly-global:
     driver: bridge
   user-service-network:
