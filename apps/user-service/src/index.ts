@@ -1,7 +1,8 @@
 import {CreateUserListener} from "./listeners/create-user-listener";
 import {RabbitMQ} from "./config/rabbitmq";
-import {DATABASE_URL, queue, RABBITMQ_URL} from "./config/env";
+import {DATABASE_URL, queue, queue_rcp, RABBITMQ_URL} from "./config/env";
 import {Users} from "./db/users";
+import {GetUsersListener} from "./listeners/get-users-listener";
 
 (async () => {
     try {
@@ -19,6 +20,7 @@ async function main() {
 
     const users = new Users(DATABASE_URL)
 
-    await rabbitMQ.consume(queue, msg => new CreateUserListener(users).onMessage(msg))
+    await rabbitMQ.consumeRCP(queue, (msg, reply) => new CreateUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRCP(queue_rcp, (msg, reply) => new GetUsersListener(users).onMessage(msg, reply))
     console.log(`Ready to receive messages from ${queue}`)
 }

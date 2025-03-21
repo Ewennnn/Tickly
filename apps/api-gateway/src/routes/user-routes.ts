@@ -1,8 +1,20 @@
 import {Context, Hono} from "hono";
 import {RabbitMQ} from "../config/rabbitmq";
-import {queue} from "../config/env";
+import {queue, queue_rcp} from "../config/env";
 import {RoutesDeclarator} from "./routes-declarator";
 import {createUserBody} from "./validation/user-validation";
+
+type User = {
+    id: number,
+    name: string,
+    age: number,
+    email: string,
+    role: 'ROLE_ADMIN' | 'ROLE_USER',
+}
+
+type ServiceError = {
+    error: string,
+}
 
 export class UsersRoutes implements RoutesDeclarator {
 
@@ -10,6 +22,7 @@ export class UsersRoutes implements RoutesDeclarator {
 
     declareRoutes(): void {
         this.app.post('/user', this.createUser)
+        this.app.get('/users', this.getUsers)
     }
 
     private readonly createUser = async (c: Context) => {
@@ -24,9 +37,16 @@ export class UsersRoutes implements RoutesDeclarator {
         }
 
         console.log(body)
-        await this.rabbitMQ.publish(queue, JSON.stringify(body))
-        return c.json({
-            message: 'Hello Hono !',
-        })
+        const user = await this.rabbitMQ.publishRCP<User | ServiceError>(queue, body)
+        return c.json(user)
+    }
+
+    private readonly getUsers = async (c: Context) => {
+        try {
+            const users = await this.rabbitMQ.publishRCP<User[]>(queue_rcp, { users: 'all' })
+            return c.json(users)
+        } catch (err) {
+            return c.json({ error: 'No response received from service'}, 500)
+        }
     }
 }

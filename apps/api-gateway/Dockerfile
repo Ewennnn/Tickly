@@ -23,6 +23,7 @@ COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/package*.json ./
 
 # Exposition du port 3000 à l'extérieur du conteneur
+ENV PORT=3000
 EXPOSE 3000
 
 # Commande de lancement du conteneur
