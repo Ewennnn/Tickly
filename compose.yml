@@ -29,7 +29,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      SECRET_WORD: ${SECRET_WORD}
       RABBITMQ_URL: amqp://rabbitmq
     restart: always
     depends_on:
