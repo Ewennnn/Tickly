@@ -1,8 +1,9 @@
 import {Pool} from "pg";
 import {drizzle, NodePgDatabase} from "drizzle-orm/node-postgres";
 import {users} from "./schema";
-import {getTableColumns} from "drizzle-orm";
+import {eq, getTableColumns} from "drizzle-orm";
 
+export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 
 export class Users {
@@ -19,11 +20,49 @@ export class Users {
 
     public all() {
         const { password, ...content } = getTableColumns(users)
-        return this.db.select({ ...content }).from(users).execute()
+        return this.db
+            .select({ ...content })
+            .from(users).execute()
+    }
+
+    public getById(id: string) {
+        const { password, ...content } = getTableColumns(users)
+        return this.db
+            .select({ ...content })
+            .from(users)
+            .where(eq(users.id, id))
+    }
+
+    public getByEmail(email: string) {
+        const { password, ...content } = getTableColumns(users)
+        return this.db
+            .select({ ...content })
+            .from(users)
+            .where(eq(users.id, email))
     }
 
     public async add(user: NewUser) {
         const { password, ...content } = getTableColumns(users)
-        return this.db.insert(users).values(user).returning({ ...content })
+        return this.db
+            .insert(users)
+            .values(user)
+            .returning({ ...content })
+    }
+
+    public async update(user: Partial<User>) {
+        const { password, ...content } = getTableColumns(users)
+        return this.db
+            .update(users)
+            .set(user)
+            .where(eq(users.id, user.id!))
+            .returning({ ...content })
+    }
+
+    public async delete(id: string) {
+        const { password, ...content } = getTableColumns(users)
+        return this.db
+            .delete(users)
+            .where(eq(users.id, id))
+            .returning({ ...content })
     }
 }

@@ -1,8 +1,11 @@
 import {CreateUserListener} from "./listeners/create-user-listener";
 import {RabbitMQ} from "./config/rabbitmq";
-import {DATABASE_URL, queue, queue_rcp, RABBITMQ_URL} from "./config/env";
+import {DATABASE_URL, QUEUES, RABBITMQ_URL} from "./config/env";
 import {Users} from "./db/users";
 import {GetUsersListener} from "./listeners/get-users-listener";
+import {UpdateUserListener} from "./listeners/update-user-listener";
+import {GetUserListener} from "./listeners/get-user-listener";
+import {DeleteUserListener} from "./listeners/delete-user-listener";
 
 (async () => {
     try {
@@ -20,7 +23,9 @@ async function main() {
 
     const users = new Users(DATABASE_URL)
 
-    await rabbitMQ.consumeRCP(queue, (msg, reply) => new CreateUserListener(users).onMessage(msg, reply))
-    await rabbitMQ.consumeRCP(queue_rcp, (msg, reply) => new GetUsersListener(users).onMessage(msg, reply))
-    console.log(`Ready to receive messages from ${queue}`)
+    await rabbitMQ.consumeRCP(QUEUES.USERS.create, (msg, reply) => new CreateUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRCP(QUEUES.USERS.getAll, (msg, reply) => new GetUsersListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRCP(QUEUES.USERS.get, (msg, reply) => new GetUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRCP(QUEUES.USERS.patch, (msg, reply) => new UpdateUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consume(QUEUES.USERS.delete, msg => new DeleteUserListener(users).onMessage(msg))
 }
