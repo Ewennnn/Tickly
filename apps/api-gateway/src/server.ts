@@ -1,4 +1,5 @@
 import {Hono} from "hono";
+import {cors} from "hono/cors"
 import {RabbitMQ} from "./config/rabbitmq";
 import {serve} from "@hono/node-server";
 import {UsersRoutes} from "./routes/user-routes";
@@ -15,8 +16,12 @@ export class Gateway {
     }
 
     async start() {
-        await this.rabbitMQ.connect()
-        console.log("Successfully connected to RabbitMQ !")
+        try {
+            await this.rabbitMQ.connect()
+            console.log("Successfully connected to RabbitMQ !")
+        } catch (err) {
+            console.warn(`Failed to connect to RabbitMQ with url ${this.rabbitMQ.url}`)
+        }
 
         const userRoutes = new UsersRoutes(this.app, this.rabbitMQ)
         userRoutes.declareRoutes()

@@ -6,7 +6,7 @@ export class RabbitMQ {
     private replyQueue: string;
     private readonly responses: Map<string, (response: any) => void> = new Map()
 
-    constructor(private readonly url: string) {}
+    constructor(readonly url: string) {}
 
     /**
      * Initialise la connexion à RabbitMQ et l'écoute des channels de réponse.
