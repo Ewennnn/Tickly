@@ -23,6 +23,12 @@ export class Gateway {
             console.warn(`Failed to connect to RabbitMQ with url ${this.rabbitMQ.url}`)
         }
 
+        this.app.use('*', cors({
+            origin: '*',
+            allowHeaders: ['Content-Type', 'Authorization'],
+            allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
+        }))
+
         const userRoutes = new UsersRoutes(this.app, this.rabbitMQ)
         userRoutes.declareRoutes()
 
