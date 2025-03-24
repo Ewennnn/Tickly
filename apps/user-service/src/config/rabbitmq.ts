@@ -53,8 +53,9 @@ export class RabbitMQ {
                 onMessage(message.content.toString())
             } catch (err) {
                 console.error(`Error occurred: ${err}`)
+            } finally {
+                this.channel.ack(message)
             }
-            this.channel.ack(message)
         })
     }
 
@@ -85,8 +86,9 @@ export class RabbitMQ {
                 })
             } catch (err) {
                 console.error(`Error occurred during RPC consumption: ${err}`)
+            } finally {
+                this.channel.ack(message)
             }
-            this.channel.ack(message)
         })
     }
 
