@@ -7,11 +7,13 @@ export class CreateUserListener implements RabbitmqRPCListener {
     constructor(private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void) {
-        const data = JSON.parse(msg)
+        const { name, age, email, password } = JSON.parse(msg)
 
         const newUser: NewUser = {
-            ...data,
-            password: bcrypt.hashSync(data.password, 10),
+            name,
+            age,
+            email: email.toLowerCase(),
+            password: bcrypt.hashSync(password, 10),
             role: "ROLE_USER"
         }
 

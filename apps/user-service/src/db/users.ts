@@ -1,6 +1,6 @@
 import {Pool} from "pg";
 import {drizzle, NodePgDatabase} from "drizzle-orm/node-postgres";
-import {users} from "./schema";
+import {lower, users} from "./schema";
 import {eq, getTableColumns} from "drizzle-orm";
 
 export type User = typeof users.$inferSelect
@@ -38,7 +38,14 @@ export class Users {
         return this.db
             .select({ ...content })
             .from(users)
-            .where(eq(users.id, email))
+            .where(eq(lower(users.email), email.toLowerCase()))
+    }
+
+    public getByEmailIncludePassword(email: string) {
+        return this.db
+            .select({ ...getTableColumns(users) })
+            .from(users)
+            .where(eq(lower(users.email), email.toLowerCase()))
     }
 
     public async add(user: NewUser) {
