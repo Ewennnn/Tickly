@@ -6,22 +6,33 @@ export class UpdateUserListener implements RabbitmqRCPListener {
     constructor(private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
-        console.log(`Message received: ${msg}`)
-
         const updated = JSON.parse(msg)
-        console.log(updated)
 
         this.users.update(updated)
             .then(user => {
                 if (user.length === 0) {
-                    throw new Error('No user was updated')
+                    reply({
+                        error: `No user was updated with id ${updated.id}`,
+                        code: 404,
+                    })
                 }
-                console.log(`Successfully update user with id ${user[0].id}`)
-                reply(user)
+
+                if (user.length > 1) {
+                    reply({
+                        error: `Many users was updated with id ${updated.id}`,
+                        code: 409,
+                    })
+                }
+                console.log('Successfully update user:')
+                console.log(user[0])
+                reply(user[0])
             })
             .catch(err => {
                 console.error(`Failed to update user: ${err}`)
-                reply({ error: `Failed to update user with id ${updated.id}` })
+                reply({
+                    error: `Failed to update user with id ${updated.id}`,
+                    code: 500
+                })
             })
     }
 }

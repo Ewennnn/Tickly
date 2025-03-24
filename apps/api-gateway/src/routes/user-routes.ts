@@ -3,6 +3,7 @@ import {RabbitMQ} from "../config/rabbitmq";
 import {QUEUES} from "../config/env";
 import {RoutesDeclarator} from "./routes-declarator";
 import {createUserBody, patchUserBody} from "./validation/user-validation";
+import {ContentfulStatusCode} from "hono/dist/types/utils/http-status";
 
 type User = {
     id: number,
@@ -14,6 +15,7 @@ type User = {
 
 type ServiceError = {
     error: string,
+    code: ContentfulStatusCode,
 }
 
 type ServiceResponse = User | ServiceError
@@ -42,7 +44,7 @@ export class UsersRoutes implements RoutesDeclarator {
         }
 
         try {
-            const user = await this.rabbitMQ.publishRCP<User | ServiceError>(QUEUES.USERS.create, body)
+            const user = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.create, body)
             return this.doResponse(c, user)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)
@@ -51,7 +53,7 @@ export class UsersRoutes implements RoutesDeclarator {
 
     private readonly getUsers = async (c: Context) => {
         try {
-            const users = await this.rabbitMQ.publishRCP<User[]>(QUEUES.USERS.getAll, { users: 'all' })
+            const users = await this.rabbitMQ.publishRCP<User[]>(QUEUES.USERS.getAll, {})
             return c.json(users)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)
@@ -92,15 +94,23 @@ export class UsersRoutes implements RoutesDeclarator {
     private readonly deleteUser = async (c: Context) => {
         const id = c.req.param('id')
 
-        await this.rabbitMQ.publish(QUEUES.USERS.delete, { id })
-        c.status(204)
-        return c.json(undefined)
+        try {
+            const deletedUser = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.delete, { id })
+            return this.doResponse(c, deletedUser)
+        } catch (err) {
+            return c.json({ error: 'No response received from service'}, 500)
+        }
     }
 
     private doResponse(c: Context, response: ServiceResponse) {
-        if ("error" in response) {
-            return c.json(response, 500)
+        if (this.isError(response)) {
+            return c.json({ error: response.error }, response.code)
         }
         return c.json(response)
+    }
+
+    private isError(response: ServiceResponse): response is ServiceError {
+        return (response as ServiceError).error !== undefined
+            && (response as ServiceError).code !== undefined
     }
 }

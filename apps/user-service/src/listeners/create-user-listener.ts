@@ -7,24 +7,42 @@ export class CreateUserListener implements RabbitmqRCPListener {
     constructor(private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void) {
-        console.log(`Message received: ${msg}`)
-
         const data = JSON.parse(msg)
+
         const newUser: NewUser = {
             ...data,
             password: bcrypt.hashSync(data.password, 10),
             role: "ROLE_USER"
         }
 
-        console.log(newUser)
         this.users.add(newUser)
             .then(user => {
-                console.log(`New user registered with uuid ${user[0].id}`)
-                reply(user)
+                if (user.length === 0) {
+                    reply({
+                        error: `No user was created`,
+                        code: 400,
+                    })
+                    return
+                }
+
+                if (user.length > 1) {
+                    reply({
+                        error: 'Many users was created',
+                        code: 409,
+                    })
+                    return
+                }
+
+                console.log('New user registered:')
+                console.log(user[0])
+                reply(user[0])
             })
             .catch(err => {
                 console.error(`Error while insert new user ${err}`)
-                reply({ error: 'This email is already registered' })
+                reply({
+                    error: 'This email is already registered',
+                    code: 409,
+                })
             })
     }
 }

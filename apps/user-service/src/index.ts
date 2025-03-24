@@ -27,5 +27,5 @@ async function main() {
     await rabbitMQ.consumeRCP(QUEUES.USERS.getAll, (msg, reply) => new GetUsersListener(users).onMessage(msg, reply))
     await rabbitMQ.consumeRCP(QUEUES.USERS.get, (msg, reply) => new GetUserListener(users).onMessage(msg, reply))
     await rabbitMQ.consumeRCP(QUEUES.USERS.patch, (msg, reply) => new UpdateUserListener(users).onMessage(msg, reply))
-    await rabbitMQ.consume(QUEUES.USERS.delete, msg => new DeleteUserListener(users).onMessage(msg))
+    await rabbitMQ.consumeRCP(QUEUES.USERS.delete, (msg, reply) => new DeleteUserListener(users).onMessage(msg, reply))
 }

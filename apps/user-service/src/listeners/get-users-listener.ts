@@ -6,7 +6,7 @@ export class GetUsersListener implements RabbitmqRCPListener {
     constructor(private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
-        console.log(`Receive message that waits for response: ${msg}`)
+        console.log(`Receive request to get all users`)
 
         this.users.all()
             .then(users => reply(users))
