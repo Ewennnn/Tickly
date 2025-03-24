@@ -44,7 +44,7 @@ export class UsersRoutes implements RoutesDeclarator {
         }
 
         try {
-            const user = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.create, body)
+            const user = await this.rabbitMQ.publishRPC<ServiceResponse>(QUEUES.USERS.create, body)
             return this.doResponse(c, user)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)
@@ -53,7 +53,7 @@ export class UsersRoutes implements RoutesDeclarator {
 
     private readonly getUsers = async (c: Context) => {
         try {
-            const users = await this.rabbitMQ.publishRCP<User[]>(QUEUES.USERS.getAll, {})
+            const users = await this.rabbitMQ.publishRPC<User[]>(QUEUES.USERS.getAll, {})
             return c.json(users)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)
@@ -64,7 +64,7 @@ export class UsersRoutes implements RoutesDeclarator {
         const id = c.req.param('id')
 
         try {
-            const user = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.get, { id })
+            const user = await this.rabbitMQ.publishRPC<ServiceResponse>(QUEUES.USERS.get, { id })
             return this.doResponse(c, user)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)
@@ -83,7 +83,7 @@ export class UsersRoutes implements RoutesDeclarator {
         }
 
         try {
-            const updatedUser = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.patch, parseResult.data)
+            const updatedUser = await this.rabbitMQ.publishRPC<ServiceResponse>(QUEUES.USERS.patch, parseResult.data)
 
             return this.doResponse(c, updatedUser)
         } catch (err) {
@@ -95,7 +95,7 @@ export class UsersRoutes implements RoutesDeclarator {
         const id = c.req.param('id')
 
         try {
-            const deletedUser = await this.rabbitMQ.publishRCP<ServiceResponse>(QUEUES.USERS.delete, { id })
+            const deletedUser = await this.rabbitMQ.publishRPC<ServiceResponse>(QUEUES.USERS.delete, { id })
             return this.doResponse(c, deletedUser)
         } catch (err) {
             return c.json({ error: 'No response received from service'}, 500)

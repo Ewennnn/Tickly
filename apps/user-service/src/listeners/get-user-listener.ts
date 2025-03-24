@@ -1,7 +1,7 @@
-import {RabbitmqRCPListener} from "./rabbitmq-listener";
+import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {Users} from "../db/users";
 
-export class GetUserListener implements RabbitmqRCPListener {
+export class GetUserListener implements RabbitmqRPCListener {
 
     constructor(private readonly users: Users) {}
 

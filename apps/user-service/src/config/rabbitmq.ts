@@ -63,7 +63,7 @@ export class RabbitMQ {
      * @param queue Nom de la queue qui sera consommée.
      * @param onMessage Callback appelée pour envoyer une réponse.
      */
-    async consumeRCP(queue: string, onMessage: (msg: string, reply: (response: object) => void) => void) {
+    async consumeRPC(queue: string, onMessage: (msg: string, reply: (response: object) => void) => void) {
         await this.channel.assertQueue(queue, { durable: true })
 
         await this.channel.consume(queue, message => {
@@ -84,7 +84,7 @@ export class RabbitMQ {
                     this.channel.sendToQueue(replyTo, Buffer.from(JSON.stringify(response)), { correlationId })
                 })
             } catch (err) {
-                console.error(`Error occurred during RCP consumption: ${err}`)
+                console.error(`Error occurred during RPC consumption: ${err}`)
             }
             this.channel.ack(message)
         })
@@ -108,7 +108,7 @@ export class RabbitMQ {
      * @param message Message envoyé dans la queue.
      * @return Promise contenant la réponse du service
      */
-    async publishRCP<R>(queue: string, message: object): Promise<R> {
+    async publishRPC<R>(queue: string, message: object): Promise<R> {
         return new Promise((resolve, reject) => {
             const correlationId = Math.random().toString(36).substring(7)
 

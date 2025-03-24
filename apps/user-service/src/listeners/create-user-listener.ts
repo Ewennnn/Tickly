@@ -1,8 +1,8 @@
-import {RabbitmqRCPListener} from "./rabbitmq-listener";
+import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {NewUser, Users} from "../db/users";
 import bcrypt from 'bcrypt'
 
-export class CreateUserListener implements RabbitmqRCPListener {
+export class CreateUserListener implements RabbitmqRPCListener {
 
     constructor(private readonly users: Users) {}
 
