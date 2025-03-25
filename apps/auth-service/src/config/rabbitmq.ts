@@ -97,10 +97,10 @@ export class RabbitMQ {
      * @param queue Nom de la queue qui sera alimentée.
      * @param message Message envoyé dans la queue.
      */
-    async publish(queue: string, message: string) {
+    async publish(queue: string, message: object) {
         await this.channel.assertQueue(queue, { durable: true })
 
-        this.channel.sendToQueue(queue, Buffer.from(message))
+        this.channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)))
     }
 
     /**
