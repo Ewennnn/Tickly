@@ -10,6 +10,12 @@ export class GetUsersListener implements RabbitmqRPCListener {
 
         this.users.all()
             .then(users => reply(users))
-            .catch(err => console.error(`Error occurred while retrieve all users: ${err}`))
+            .catch(err => {
+                console.error(`Error occurred while retrieve all users: ${err}`)
+                reply({
+                    error: `Failed to retrieve users`,
+                    code: 500,
+                })
+            })
     }
 }
