@@ -3,8 +3,9 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export const RABBITMQ_URL = requiredEnvVar("RABBITMQ_URL")
-export const DATABASE_URL = requiredEnvVar("DATABASE_URL")
-export const JWT_SECRET = process.env.JWT_SECRET ?? "JWT_SECRET"
+export const MAILTRAP_TOKEN = requiredEnvVar("MAILTRAP_TOKEN")
+export const EMAIL_SENDER = requiredEnvVar("EMAIL_SENDER")
+export const EMAIL_SENDER_NAME = requiredEnvVar("EMAIL_SENDER_NAME")
 
 function requiredEnvVar(key: string) {
     const value = process.env[key];

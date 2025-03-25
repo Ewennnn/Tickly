@@ -24,10 +24,10 @@ async function main() {
 
     const users = new Users(DATABASE_URL)
 
-    await rabbitMQ.consumeRPC(QUEUES.USERS.create, (msg, reply) => new CreateUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRPC(QUEUES.USERS.create, (msg, reply) => new CreateUserListener(rabbitMQ, users).onMessage(msg, reply))
     await rabbitMQ.consumeRPC(QUEUES.USERS.getAll, (msg, reply) => new GetUsersListener(users).onMessage(msg, reply))
     await rabbitMQ.consumeRPC(QUEUES.USERS.get, (msg, reply) => new GetUserListener(users).onMessage(msg, reply))
     await rabbitMQ.consumeRPC(QUEUES.USERS.validateCredentials, (msg, reply) => new CredentialsValidationListener(users).onMessage(msg, reply))
-    await rabbitMQ.consumeRPC(QUEUES.USERS.patch, (msg, reply) => new UpdateUserListener(users).onMessage(msg, reply))
-    await rabbitMQ.consumeRPC(QUEUES.USERS.delete, (msg, reply) => new DeleteUserListener(users).onMessage(msg, reply))
+    await rabbitMQ.consumeRPC(QUEUES.USERS.patch, (msg, reply) => new UpdateUserListener(rabbitMQ, users).onMessage(msg, reply))
+    await rabbitMQ.consumeRPC(QUEUES.USERS.delete, (msg, reply) => new DeleteUserListener(rabbitMQ, users).onMessage(msg, reply))
 }

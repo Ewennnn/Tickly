@@ -58,7 +58,14 @@ export class LoginUserListener implements RabbitmqRPCListener {
                             email: user.email,
                             token: refreshToken,
                             expireAt: expireAt
-                        }).then(() => reply({ accessToken, refreshToken }))
+                        }).then(() => {
+                            this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
+                                to: user.email,
+                                subject: "Nouvelle connexion",
+                                content: "Quelqu'un vient de se connecter à votre compte. S'il ne s'agit pas de vous, veuillez prendre les précautions nécessaires pour sécuriser votre compte."
+                            }).then()
+                            reply({ accessToken, refreshToken })
+                        })
                             .catch(err => {
                                 console.error(`Failed to save refresh token for ${email}: ${err}`)
                                 reply({

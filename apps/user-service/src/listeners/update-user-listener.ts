@@ -1,10 +1,12 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {Users} from "../db/users";
 import bcrypt from "bcrypt";
+import {RabbitMQ} from "../config/rabbitmq";
+import {QUEUES} from "../config/env";
 
 export class UpdateUserListener implements RabbitmqRPCListener {
 
-    constructor(private readonly users: Users) {}
+    constructor(private readonly rabbitMQ: RabbitMQ, private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
         const { id, name, age, email, password, role } = JSON.parse(msg)
@@ -33,6 +35,13 @@ export class UpdateUserListener implements RabbitmqRPCListener {
                         code: 409,
                     })
                 }
+
+                this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
+                    to: user[0].email,
+                    subject: 'Votre compte a été mis à jour',
+                    content: 'Les modifications apportées à votre profil on correctement été appliquées'
+                }).then()
+
                 console.log('Successfully update user:')
                 console.log(user[0])
                 reply(user[0])

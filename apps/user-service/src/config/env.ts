@@ -27,4 +27,7 @@ export const QUEUES = {
         refreshToken: "refresh_token_queue",
         logout: "logout_queue",
     },
+    NOTIFICATION: {
+        sendEmail: "send_email_queue"
+    }
 }

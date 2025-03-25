@@ -1,10 +1,12 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {NewUser, Users} from "../db/users";
 import bcrypt from 'bcrypt'
+import {RabbitMQ} from "../config/rabbitmq";
+import {QUEUES} from "../config/env";
 
 export class CreateUserListener implements RabbitmqRPCListener {
 
-    constructor(private readonly users: Users) {}
+    constructor(private readonly rabbitMQ: RabbitMQ, private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void) {
         const { name, age, email, password } = JSON.parse(msg)
@@ -34,6 +36,12 @@ export class CreateUserListener implements RabbitmqRPCListener {
                     })
                     return
                 }
+
+                this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
+                    to: user[0].email,
+                    subject: `Bienvenue sur Tickly ${user[0].name} !`,
+                    content: "Bienvenu sur Tickly ! \nIci tu trouvera les évènements les plus chauds de ta région !"
+                }).then()
 
                 console.log('New user registered:')
                 console.log(user[0])

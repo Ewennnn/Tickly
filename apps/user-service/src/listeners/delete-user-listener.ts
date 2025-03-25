@@ -1,10 +1,11 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {Users} from "../db/users";
+import {RabbitMQ} from "../config/rabbitmq";
+import {QUEUES} from "../config/env";
 
 export class DeleteUserListener implements RabbitmqRPCListener {
 
-    constructor(private readonly users: Users) {}
-
+    constructor(private readonly rabbitMQ: RabbitMQ, private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
         const data = JSON.parse(msg)
@@ -16,6 +17,7 @@ export class DeleteUserListener implements RabbitmqRPCListener {
             })
         }
 
+        console.log(`Receive request to delete user with id ${data.id}`)
         this.users.delete(data.id)
             .then(user => {
                 if (user.length === 0) {
@@ -33,6 +35,13 @@ export class DeleteUserListener implements RabbitmqRPCListener {
                     })
                     return
                 }
+
+                this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
+                    to: user[0].email,
+                    name: user[0].name,
+                    subject: 'A bientôt sur Tickly !',
+                    content: 'Votre compte a été supprimé.\nNous sommes triste de vous voir partir :( Nous espérons vous revoir prochainement !'
+                }).then()
 
                 console.log('Successfully delete user: `')
                 console.log(user[0])

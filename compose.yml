@@ -110,6 +110,24 @@ services:
     networks:
       - auth-service-network
 
+  # Service d'authentification
+  notification-service:
+    build:
+      context: /apps/notification-service
+    container_name: notification-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      MAILTRAP_TOKEN: f9da5098d2b21a1fbab54768c89aafef
+      EMAIL_SENDER: hello@demomailtrap.co
+      EMAIL_SENDER_NAME: Tickly
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+    networks:
+      - tickly-global
+
 networks:
   exposed-gateway:
     driver: bridge
