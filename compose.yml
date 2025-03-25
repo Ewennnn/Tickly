@@ -6,7 +6,7 @@ services:
     ports:
       - "4000:4000"
     networks:
-      - exposed-gateway
+      - frontend
 
   # Service RabbitMQ
   rabbitmq:
@@ -19,7 +19,27 @@ services:
       interval: 5s
       timeout: 30s
     networks:
-      - tickly-global
+      - rabbitmq
+
+  # Base de données globale aux services
+  # En conditions réelles, il existe deux solutions
+  # 1 - Une base de données centralisée avec réplication + sharding qui permet d'avoir un schéma de données avec des relations
+  # 2 - Une base de données par service qui isole complètement chaque partie métier de l'application. Il n'y a pas de schéma de données centralisé
+  # Dans le cadre de ce projet, il n'y a qu'une seule base de données pour des raisons de performances.
+  # Chaque service manipule son propre schéma au sein de la base de données pour simuler le second scénario présenté ci-dessus.
+  services-database:
+    image: postgres:17.4
+    container_name: services-database
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: public
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d public" ]
+      interval: 5s
+      timeout: 30s
+    networks:
+      - database
 
   # Gateway
   api-gateway:
@@ -36,8 +56,9 @@ services:
         condition: service_healthy
         restart: true
     networks:
-      - exposed-gateway
-      - tickly-global
+      - frontend
+      - rabbitmq
+      - services
 
   # Service utilisateurs
   user-service:
@@ -46,33 +67,19 @@ services:
     container_name: user-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
-      DATABASE_URL: postgresql://root:root@user-service-database:5432/public
+      DATABASE_URL: postgresql://root:root@services-database:5432/public
     restart: always
     depends_on:
       rabbitmq:
         condition: service_healthy
         restart: true
-      user-service-database:
+      services-database:
         condition: service_healthy
         restart: true
     networks:
-      - tickly-global
-      - user-service-network
-
-  # Base de données service utilisateurs
-  user-service-database:
-    image: postgres:17.4
-    container_name: user-service-db
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: public
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d public"]
-      interval: 5s
-      timeout: 30s
-    networks:
-      - user-service-network
+      - services
+      - database
+      - rabbitmq
 
   # Service d'authentification
   auth-service:
@@ -81,34 +88,20 @@ services:
     container_name: auth-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
-      DATABASE_URL: postgresql://root:root@auth-service-database:5432/public
+      DATABASE_URL: postgresql://root:root@services-database:5432/public
       JWT_SECRET: "compose_jwt_secret"
     restart: always
     depends_on:
       rabbitmq:
         condition: service_healthy
         restart: true
-      auth-service-database:
+      services-database:
         condition: service_healthy
         restart: true
     networks:
-      - tickly-global
-      - auth-service-network
-
-  # Base de données service d'authentification
-  auth-service-database:
-    image: postgres:17.4
-    container_name: auth-service-db
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: public
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d public" ]
-      interval: 5s
-      timeout: 30s
-    networks:
-      - auth-service-network
+      - services
+      - database
+      - rabbitmq
 
   # Service d'authentification
   notification-service:
@@ -126,7 +119,8 @@ services:
         condition: service_healthy
         restart: true
     networks:
-      - tickly-global
+      - rabbitmq
+      - services
 
   # Service d'évènements
   events-service:
@@ -135,43 +129,26 @@ services:
     container_name: events-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
-      DATABASE_URL: postgresql://root:root@events-service-database:5432/public
+      DATABASE_URL: postgresql://root:root@services-database:5432/public
     restart: always
     depends_on:
       rabbitmq:
         condition: service_healthy
         restart: true
-      events-service-database:
+      services-database:
         condition: service_healthy
         restart: true
     networks:
-      - tickly-global
-      - events-service-network
-
-  # Base de données service d'évènements
-  events-service-database:
-    image: postgres:17.4
-    container_name: events-service-db
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: public
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U root -d public" ]
-      interval: 5s
-      timeout: 30s
-    networks:
-      - events-service-network
-
+      - services
+      - database
+      - rabbitmq
 
 networks:
-  exposed-gateway:
+  frontend:
     driver: bridge
-  tickly-global:
+  services:
     driver: bridge
-  user-service-network:
+  rabbitmq:
     driver: bridge
-  auth-service-network:
-    driver: bridge
-  events-service-network:
+  database:
     driver: bridge
