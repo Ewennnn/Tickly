@@ -74,10 +74,48 @@ services:
     networks:
       - user-service-network
 
+  # Service d'authentification
+  auth-service:
+    build:
+      context: /apps/auth-service
+    container_name: auth-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATABASE_URL: postgresql://root:root@auth-service-database:5432/public
+      JWT_SECRET: "compose_jwt_secret"
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      auth-service-database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - tickly-global
+      - auth-service-network
+
+  # Base de données service d'authentification
+  auth-service-database:
+    image: postgres:17.4
+    container_name: auth-service-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: public
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d public" ]
+      interval: 5s
+      timeout: 30s
+    networks:
+      - auth-service-network
+
 networks:
   exposed-gateway:
     driver: bridge
   tickly-global:
     driver: bridge
   user-service-network:
+    driver: bridge
+  auth-service-network:
     driver: bridge

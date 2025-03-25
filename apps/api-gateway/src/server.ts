@@ -3,6 +3,7 @@ import {cors} from "hono/cors"
 import {RabbitMQ} from "./config/rabbitmq";
 import {serve} from "@hono/node-server";
 import {UsersRoutes} from "./routes/user-routes";
+import {AuthRoutes} from "./routes/auth-routes";
 
 export class Gateway {
     private readonly port: number
@@ -31,6 +32,9 @@ export class Gateway {
 
         const userRoutes = new UsersRoutes(this.app, this.rabbitMQ)
         userRoutes.declareRoutes()
+
+        const authRoutes = new AuthRoutes(this.app, this.rabbitMQ)
+        authRoutes.declareRoutes()
 
         serve({
             fetch: this.app.fetch,

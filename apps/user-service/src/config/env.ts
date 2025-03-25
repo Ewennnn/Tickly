@@ -18,7 +18,13 @@ export const QUEUES = {
         create: "create_user_queue",
         getAll: "get_all_users_queue",
         get: "get_user_queue",
+        validateCredentials: "validate_credentials_queue",
         patch: "patch_user_queue",
         delete: "delete_user_queue"
-    }
+    },
+    AUTH: {
+        login: "login_queue",
+        refreshToken: "refresh_token_queue",
+        logout: "logout_queue",
+    },
 }

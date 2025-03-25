@@ -2,8 +2,9 @@ import dotenv from "dotenv";
 
 dotenv.config()
 
-export const PORT = Number(requiredEnvVar("PORT"))
 export const RABBITMQ_URL = requiredEnvVar("RABBITMQ_URL")
+export const DATABASE_URL = requiredEnvVar("DATABASE_URL")
+export const JWT_SECRET = process.env.JWT_SECRET ?? "JWT_SECRET"
 
 function requiredEnvVar(key: string) {
     const value = process.env[key];
