@@ -1,5 +1,5 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
-import {User, Users} from "../db/users";
+import {Users} from "../db/users";
 import bcrypt from "bcrypt";
 
 export class UpdateUserListener implements RabbitmqRPCListener {
@@ -9,12 +9,12 @@ export class UpdateUserListener implements RabbitmqRPCListener {
     onMessage(msg: string, reply: (response: object) => void): void {
         const { id, name, age, email, password, role } = JSON.parse(msg)
 
-        const updated: User = {
+        const updated = {
             id,
             name,
             age,
             email: email?.toLowerCase(),
-            password: bcrypt.hashSync(password, 10),
+            password: password ? bcrypt.hashSync(password, 10) : undefined,
             role: role,
         }
 
