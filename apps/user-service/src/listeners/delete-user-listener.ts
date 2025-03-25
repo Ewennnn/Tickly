@@ -8,21 +8,21 @@ export class DeleteUserListener implements RabbitmqRPCListener {
     constructor(private readonly rabbitMQ: RabbitMQ, private readonly users: Users) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
-        const data = JSON.parse(msg)
+        const { id } = JSON.parse(msg)
 
-        if (!data.id) {
-            reply({
+        if (!id) {
+            return reply({
                 error: "No id provided",
                 code: 400
             })
         }
 
-        console.log(`Receive request to delete user with id ${data.id}`)
-        this.users.delete(data.id)
+        console.log(`Receive request to delete user with id ${id}`)
+        this.users.delete(id)
             .then(user => {
                 if (user.length === 0) {
                     reply({
-                        error: `No user was deleted with id ${data.id}`,
+                        error: `No user was deleted with id ${id}`,
                         code: 404,
                     })
                     return
@@ -30,7 +30,7 @@ export class DeleteUserListener implements RabbitmqRPCListener {
 
                 if (user.length > 1) {
                     reply({
-                        error: `Many users was deleted with id ${data.id}`,
+                        error: `Many users was deleted with id ${id}`,
                         code: 409,
                     })
                     return
@@ -48,9 +48,9 @@ export class DeleteUserListener implements RabbitmqRPCListener {
                 reply(user[0])
             })
             .catch(err => {
-                console.error(`Failed to delete user with id ${data.id}: ${err}`)
+                console.error(`Failed to delete user with id ${id}: ${err}`)
                 reply({
-                    error: `Failed to delete user with id ${data.id}`,
+                    error: `Failed to delete user with id ${id}`,
                     code: 500,
                 })
             })
