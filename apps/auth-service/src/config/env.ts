@@ -30,5 +30,11 @@ export const QUEUES = {
     },
     NOTIFICATION: {
         sendEmail: "send_email_queue"
-    }
+    },
+    EVENTS: {
+        get: "get_events_queue",
+        create: "create_event_queue",
+        update: "update_event_queue",
+        delete: "delete_event_queue",
+    },
 }

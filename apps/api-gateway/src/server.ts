@@ -4,6 +4,7 @@ import {RabbitMQ} from "./config/rabbitmq";
 import {serve} from "@hono/node-server";
 import {UsersRoutes} from "./routes/user-routes";
 import {AuthRoutes} from "./routes/auth-routes";
+import {EventsRoutes} from "./routes/events-routes";
 
 export class Gateway {
     private readonly port: number
@@ -35,6 +36,9 @@ export class Gateway {
 
         const authRoutes = new AuthRoutes(this.app, this.rabbitMQ)
         authRoutes.declareRoutes()
+
+        const eventRoutes = new EventsRoutes(this.app, this.rabbitMQ)
+        eventRoutes.declareRoutes()
 
         serve({
             fetch: this.app.fetch,

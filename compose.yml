@@ -128,6 +128,42 @@ services:
     networks:
       - tickly-global
 
+  # Service d'évènements
+  events-service:
+    build:
+      context: /apps/event-service
+    container_name: events-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATABASE_URL: postgresql://root:root@events-service-database:5432/public
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      events-service-database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - tickly-global
+      - events-service-network
+
+  # Base de données service d'évènements
+  events-service-database:
+    image: postgres:17.4
+    container_name: events-service-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: public
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d public" ]
+      interval: 5s
+      timeout: 30s
+    networks:
+      - events-service-network
+
+
 networks:
   exposed-gateway:
     driver: bridge
@@ -136,4 +172,6 @@ networks:
   user-service-network:
     driver: bridge
   auth-service-network:
+    driver: bridge
+  events-service-network:
     driver: bridge
