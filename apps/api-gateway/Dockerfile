@@ -22,9 +22,11 @@ COPY --from=builder /build/dist ./dist
 COPY --from=builder /build/node_modules ./node_modules
 COPY --from=builder /build/package*.json ./
 
+COPY scripts/start.sh ./start.sh
+
 # Exposition du port 3000 à l'extérieur du conteneur
 ENV PORT=3000
 EXPOSE 3000
 
 # Commande de lancement du conteneur
-CMD ["node", "./dist/index.js"]
+CMD ["sh", "./start.sh"]
