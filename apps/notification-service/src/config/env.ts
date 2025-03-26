@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config()
 
 export const RABBITMQ_URL = requiredEnvVar("RABBITMQ_URL")
-export const MAILTRAP_TOKEN = requiredEnvVar("MAILTRAP_TOKEN")
+export const EMAIL_PASSWORD = requiredEnvVar("EMAIL_PASSWORD")
 export const EMAIL_SENDER = requiredEnvVar("EMAIL_SENDER")
 export const EMAIL_SENDER_NAME = requiredEnvVar("EMAIL_SENDER_NAME")
 

@@ -1,7 +1,7 @@
 import {RabbitMQ} from "./config/rabbitmq";
-import {MAILTRAP_TOKEN, QUEUES, RABBITMQ_URL} from "./config/env";
+import {EMAIL_PASSWORD, EMAIL_SENDER, QUEUES, RABBITMQ_URL} from "./config/env";
 import {SendEmailListener} from "./listeners/send-email-listener";
-import {MailtrapClient} from "mailtrap";
+import nodemailer from 'nodemailer'
 
 (async () => {
     try {
@@ -17,7 +17,16 @@ async function main() {
     const rabbitMQ = new RabbitMQ(RABBITMQ_URL)
     await rabbitMQ.connect()
 
-    const mailClient = new MailtrapClient({ token: MAILTRAP_TOKEN })
+    // const mailClient = new MailtrapClient({ token: MAILTRAP_TOKEN })
+    const transporter: nodemailer.Transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: EMAIL_SENDER,
+            pass: EMAIL_PASSWORD
+        }
+    })
 
-    await rabbitMQ.consume(QUEUES.NOTIFICATION.sendEmail, msg => new SendEmailListener(rabbitMQ, mailClient).onMessage(msg))
+    await rabbitMQ.consume(QUEUES.NOTIFICATION.sendEmail, msg => new SendEmailListener(rabbitMQ, transporter).onMessage(msg))
 }
