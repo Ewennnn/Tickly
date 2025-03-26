@@ -1,9 +1,11 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
 import {Events} from "../db/events";
+import {RabbitMQ} from "../config/rabbitmq";
+import {QUEUES} from "../config/env";
 
 export class DeleteEventListener implements RabbitmqRPCListener {
 
-    constructor(private readonly events: Events) {}
+    constructor(private readonly rabbitmq: RabbitMQ, private readonly events: Events) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
         const { id } = JSON.parse(msg)
@@ -30,6 +32,9 @@ export class DeleteEventListener implements RabbitmqRPCListener {
                         code: 409,
                     })
                 }
+
+                this.rabbitmq.publish(QUEUES.TICKETS.deleteRelatedToEvent, { eventId: event[0].id })
+                    .catch(err => console.error(`Error while sending delete tickets related to event ${event[0].id}: ${err}`))
 
                 console.log('Successfully delete event: `')
                 console.log(event[0])

@@ -27,14 +27,14 @@ export class GetUserListener implements RabbitmqRPCListener {
         userPromise
             .then(user => {
                 if (user.length === 0) {
-                    reply({
+                    return reply({
                         error: `Failed to retrieve user with id or email ${data}`,
                         code: 404,
                     })
                 }
 
                 if (user.length > 1) {
-                    reply({
+                    return reply({
                         error: `Many users retrieved with id or email ${data}`,
                         code: 409,
                     })

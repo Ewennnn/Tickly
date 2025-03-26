@@ -24,6 +24,6 @@ async function main() {
 
     await rabbitMQ.consumeRPC(QUEUES.EVENTS.create, (msg, reply) => new CreateEventListener(events).onMessage(msg, reply));
     await rabbitMQ.consumeRPC(QUEUES.EVENTS.update, (msg, reply) => new UpdateEventListener(events).onMessage(msg, reply));
-    await rabbitMQ.consumeRPC(QUEUES.EVENTS.delete, (msg, reply) => new DeleteEventListener(events).onMessage(msg, reply));
+    await rabbitMQ.consumeRPC(QUEUES.EVENTS.delete, (msg, reply) => new DeleteEventListener(rabbitMQ, events).onMessage(msg, reply));
     await rabbitMQ.consumeRPC(QUEUES.EVENTS.get, (msg, reply) => new GetEventListener(events).onMessage(msg, reply));
 }

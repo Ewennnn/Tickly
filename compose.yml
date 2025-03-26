@@ -143,6 +143,28 @@ services:
       - database
       - rabbitmq
 
+  # Service de tickets
+  tickets-service:
+    build:
+      context: /apps/tickets-service
+    container_name: tickets-service
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATABASE_URL: postgresql://root:root@services-database:5432/public
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+      services-database:
+        condition: service_healthy
+        restart: true
+    networks:
+      - services
+      - database
+      - rabbitmq
+
+
 networks:
   frontend:
     driver: bridge

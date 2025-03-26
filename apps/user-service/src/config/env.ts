@@ -36,4 +36,10 @@ export const QUEUES = {
         update: "update_event_queue",
         delete: "delete_event_queue",
     },
+    TICKETS: {
+        create: "create_ticket_queue",
+        get: "get_all_tickets_queue",
+        delete: "delete_ticket_queue",
+        deleteRelatedToEvent: "delete_tickets_related_to_event",
+    },
 }
