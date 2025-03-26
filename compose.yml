@@ -125,7 +125,7 @@ services:
   # Service d'évènements
   events-service:
     build:
-      context: /apps/event-service
+      context: /apps/events-service
     container_name: events-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
