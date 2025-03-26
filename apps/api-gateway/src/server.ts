@@ -32,6 +32,13 @@ export class Gateway {
             allowMethods: ['GET', 'POST', 'PATCH', 'DELETE'],
         }))
 
+        this.app.onError((err, c) => {
+            return c.json({
+                error: 'Unexpected error',
+                verbose: err.message,
+            }, 500)
+        })
+
         const userRoutes = new UsersRoutes(this.app, this.rabbitMQ)
         userRoutes.declareRoutes()
 
