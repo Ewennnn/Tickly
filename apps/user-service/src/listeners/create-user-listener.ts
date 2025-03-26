@@ -40,7 +40,7 @@ export class CreateUserListener implements RabbitmqRPCListener {
                 this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
                     to: user[0].email,
                     subject: `Bienvenue sur Tickly ${user[0].name} !`,
-                    content: "Bienvenu sur Tickly ! \nIci tu trouvera les évènements les plus chauds de ta région !"
+                    content: "Bienvenue sur Tickly ! \nIci tu trouvera les évènements les plus chauds de ta région !"
                 }).then()
 
                 console.log('New user registered:')

@@ -8,6 +8,19 @@ services:
     networks:
       - frontend
 
+  load-balancer:
+    image: nginx:latest
+    container_name: load-balancer
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - frontend
+    depends_on:
+      - api-gateway-1
+      - api-gateway-2
+
   # Service RabbitMQ
   rabbitmq:
     image: rabbitmq:management
@@ -42,12 +55,26 @@ services:
       - database
 
   # Gateway
-  api-gateway:
+  api-gateway-1:
     build:
       context: ./apps/api-gateway
-    container_name: api-gateway
-    ports:
-      - "3000:3000"
+    container_name: api-gateway-1
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+        restart: true
+    networks:
+      - frontend
+      - rabbitmq
+      - services
+
+  api-gateway-2:
+    build:
+      context: ./apps/api-gateway
+    container_name: api-gateway-2
     environment:
       RABBITMQ_URL: amqp://rabbitmq
     restart: always
@@ -110,8 +137,8 @@ services:
     container_name: notification-service
     environment:
       RABBITMQ_URL: amqp://rabbitmq
-      MAILTRAP_TOKEN: f9da5098d2b21a1fbab54768c89aafef
-      EMAIL_SENDER: hello@demomailtrap.co
+      EMAIL_PASSWORD: umvh lzib obuu zjoz
+      EMAIL_SENDER: ewennn.zencraft@gmail.com
       EMAIL_SENDER_NAME: Tickly
     restart: always
     depends_on:
