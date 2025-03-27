@@ -6,6 +6,17 @@ import {primaryColor} from "@/app/globals";
 import Cookies from "js-cookie";
 import Header from "@/app/components/header/Header";
 
+type Event = {
+    id: string
+    name: string
+    description: string
+    date: string
+    seats: number
+    remainingSeats?: number
+    location: string
+    images: string[]
+}
+
 export const EventsPage = () => {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
@@ -14,74 +25,25 @@ export const EventsPage = () => {
     const [reloadUser, setReloadUser] = useState(true)
     const [user, setUser] = useState<any>()
 
-    // Exemple de données d'événements
-    const events = [
-        {
-            id: 1,
-            title: "Concert de Jazz",
-            date: "2025-04-15T19:30:00",
-            location: "Salle Apollo, Paris",
-            totalSeats: 200,
-            remainingSeats: 45,
-            images: ["https://media.istockphoto.com/id/1806011581/fr/photo/des-jeunes-gens-heureux-et-ravis-de-danser-de-sauter-et-de-chanter-pendant-le-concert-de-leur.jpg?s=612x612&w=0&k=20&c=d1GQ5j33_Ie7DBUM0gTxQcaPhkEIQxkBlWO0TLNPB8M="],
-            description: "Un soir de jazz avec les meilleurs musiciens de la scène parisienne."
-        },
-        {
-            id: 2,
-            title: "Atelier Photographie",
-            date: "2025-04-22T10:00:00",
-            location: "Studio Lumière, Lyon",
-            totalSeats: 30,
-            remainingSeats: 8,
-            images: ["https://media.istockphoto.com/id/1319479588/fr/photo/les-musiciens-jouaient-de-la-musique-rock-sur-sc%C3%A8ne-il-y-avait-un-public-plein-de-gens-qui.jpg?s=612x612&w=0&k=20&c=nYGHPpQaqhsZj_uR4NbNQBnQalQOgVWFtryyJDscupo="],
-            description: "Apprenez les techniques de photographie professionnelle lors de cet atelier interactif."
-        },
-        {
-            id: 3,
-            title: "Festival de Cuisine",
-            date: "2025-05-10T11:00:00",
-            location: "Parc des Expositions, Bordeaux",
-            totalSeats: 500,
-            remainingSeats: 213,
-            images: ["https://media.istockphoto.com/id/874747066/fr/photo/foule-festival-de-musique-de.jpg?s=612x612&w=0&k=20&c=-MVjqx4YdZT4UTF8KG75wr8dfzGrGeMHQc0gK5zulu8="],
-            description: "Dégustations, démonstrations et ateliers avec des chefs renommés."
-        },
-        {
-            id: 4,
-            title: "Exposition d'Art Contemporain",
-            date: "2025-04-18T10:00:00",
-            location: "Galerie Moderne, Toulouse",
-            totalSeats: 150,
-            remainingSeats: 72,
-            images: ["https://media.istockphoto.com/id/1331434818/fr/photo/groupe-damis-dansant-lors-dun-concert.jpg?s=612x612&w=0&k=20&c=YJ2PWI-L--8nzSdVIic2JKou8UdXAOLLuTkKJq8SjxE="],
-            description: "Découvrez les œuvres des artistes contemporains les plus prometteurs de la région."
-        },
-        {
-            id: 5,
-            title: "Conférence Tech",
-            date: "2025-05-05T09:00:00",
-            location: "Centre de Congrès, Nantes",
-            totalSeats: 350,
-            remainingSeats: 124,
-            images: ["https://media.istockphoto.com/id/1137781483/fr/photo/guitariste-m%C3%A2le-noir-chantant-et-jouant-la-guitare-acoustique-sur-la-sc%C3%A8ne.jpg?s=612x612&w=0&k=20&c=izt7gW0nmXVO4HTwSJn6YnLY-dG2BCYOcRn88HQZvzc="],
-            description: "Les dernières innovations technologiques présentées par des experts du domaine."
-        },
-        {
-            id: 6,
-            title: "Spectacle de Danse",
-            date: "2025-04-28T20:00:00",
-            location: "Théâtre Municipal, Lille",
-            totalSeats: 180,
-            remainingSeats: 35,
-            images: ["https://media.istockphoto.com/id/1464613356/fr/photo/le-chanteur-ferme-les-yeux-en-se-produisant-sur-sc%C3%A8ne-avec-un-groupe.jpg?s=612x612&w=0&k=20&c=6UZKzm7yFJX5c_Br5u8jpWGcubBkN7thXasrL1HUXUw="],
-            description: "Une soirée exceptionnelle de danse contemporaine avec des artistes internationaux."
-        }
-    ];
+    const [events, setEvents] = useState<Event[]>()
+
+    useEffect(() => {
+        (async () => {
+            const response = await fetch("http://localhost:3000/events")
+
+            if (response.ok) {
+                const body = await response.json()
+
+                console.log(body)
+                setEvents(body)
+            }
+        })()
+    }, []);
 
     useEffect(() => {
         const fetchUser = async () => {
             setLoadingUser(true)
-            const token = Cookies.get('refreshToken'); // Vérifier la présence du token
+            const token = Cookies.get('refreshToken');
             if (token) {
                 const response = await fetch("http://localhost:3000/auth/retrieve", {
                     method: 'POST',
@@ -92,9 +54,9 @@ export const EventsPage = () => {
 
                 const body = await response.json()
 
-                console.log(body)
-
-                setUser(body); // Remplace par la vraie logique d'appel API pour récupérer les données utilisateur
+                if (response.ok) {
+                    setUser(body);
+                }
             }
             setLoadingUser(false)
         };
@@ -159,34 +121,47 @@ export const EventsPage = () => {
                 <h1 className="text-3xl font-bold mb-8" style={{ color: primaryColor }}>Événements à venir</h1>
 
                 <div className="flex flex-wrap -mx-3">
-                    {events.map((event) => (
+                    {events?.map((event) => (
                         <div key={event.id} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-3 mb-6">
                             <div className="bg-white rounded-xl shadow-md overflow-hidden h-full hover:shadow-lg transition-all duration-300 flex flex-col">
                                 {/* Image */}
                                 <div className="relative h-48 bg-gray-200">
                                     <img
                                         src={event.images[0]}
-                                        alt={event.title}
+                                        alt={event.name}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
 
                                 <div className="p-6 flex flex-col flex-grow">
-                                    <h2 className="text-xl font-bold mb-2" style={{ color: primaryColor }}>{event.title}</h2>
+                                    <h2 className="text-xl font-bold mb-2" style={{ color: primaryColor }}>{event.name}</h2>
 
                                     <div className="mb-4 text-sm text-gray-600">
                                         <div className="flex items-center mb-1">
-                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                             </svg>
                                             {formatDate(event.date)}
                                         </div>
                                         <div className="flex items-center">
-                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor"
+                                                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                             </svg>
                                             {event.location}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <svg className="w-4 h-4 mr-2" aria-hidden="true" fill="none" strokeWidth='2' viewBox="0 0 24 24">
+                                                <path stroke="currentColor" d="M18.5 12A2.5 2.5 0 0 1 21 9.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v2.5a2.5 2.5 0 0 1 0 5V17a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-2.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+                                            </svg>
+                                            <span className="text-medium text-gray-700">
+                                                {event.seats} places
+                                            </span>
                                         </div>
                                     </div>
 
@@ -196,16 +171,26 @@ export const EventsPage = () => {
 
                                     {/* Places availability */}
                                     <div className="mb-6">
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-medium text-gray-700">Places disponibles</span>
-                                            <span className="font-medium text-gray-700">{event.remainingSeats} / {event.totalSeats}</span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                                            <div
-                                                className={`h-2.5 rounded-full ${calculateProgressColor(event.totalSeats, event.remainingSeats)}`}
-                                                style={{ width: `${(event.remainingSeats / event.totalSeats) * 100}%` }}
-                                            ></div>
-                                        </div>
+                                        {event.remainingSeats !== undefined ? (
+                                            <>
+                                                <div className="flex justify-between text-sm mb-1">
+                                                    <span className="text-medium text-gray-700">Places restantes</span>
+                                                    <span className="font-medium text-gray-700">
+                                            {event.remainingSeats} / {event.seats}
+                                        </span>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                                    <div
+                                                        className={`h-2.5 rounded-full ${calculateProgressColor(event.seats, event.remainingSeats)}`}
+                                                        style={{ width: `${(event.remainingSeats / event.seats) * 100}%` }}
+                                                    ></div>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="text-sm text-red-500">
+                                                Le service de tickets est inaccessible
+                                            </div>
+                                        )}
                                     </div>
 
                                     <CustomButton
