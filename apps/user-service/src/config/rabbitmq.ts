@@ -108,9 +108,10 @@ export class RabbitMQ {
      * Le déblocage des promises est gérée dans la méthode {@link connect()}.
      * @param queue Nom de la queue qui sera alimentée.
      * @param message Message envoyé dans la queue.
+     * @param timeout (Optionnel) Temps d'attente maximal en millisecondes, par défaut 5000.
      * @return Promise contenant la réponse du service
      */
-    async publishRPC<R>(queue: string, message: object): Promise<R> {
+    async publishRPC<R>(queue: string, message: object, timeout: number = 5000): Promise<R> {
         return new Promise((resolve, reject) => {
             const correlationId = Math.random().toString(36).substring(7)
 
@@ -127,7 +128,7 @@ export class RabbitMQ {
                     this.responses.delete(correlationId)
                     reject(new Error(`No response received for ${correlationId}`))
                 }
-            }, 5000)
+            }, timeout)
         })
     }
 
