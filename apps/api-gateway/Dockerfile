@@ -5,7 +5,7 @@ WORKDIR /build
 COPY ./package*.json ./
 
 # Téléchargement des dépendances
-RUN npm ci --production
+RUN npm i
 
 # Copie du répertoire source dans le workdir
 COPY . .
