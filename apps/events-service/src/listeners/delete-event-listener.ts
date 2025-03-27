@@ -33,7 +33,7 @@ export class DeleteEventListener implements RabbitmqRPCListener {
                     })
                 }
 
-                this.rabbitmq.publish(QUEUES.TICKETS.deleteRelatedToEvent, { eventId: event[0].id })
+                this.rabbitmq.publish(QUEUES.TICKETS.deleteRelatedToEvent, { eventId: event[0].id, name: event[0].name })
                     .catch(err => console.error(`Error while sending delete tickets related to event ${event[0].id}: ${err}`))
 
                 console.log('Successfully delete event: `')

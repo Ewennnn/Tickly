@@ -15,7 +15,7 @@ export class CreateTicketListener implements RabbitmqRPCListener {
             bookedAt
         }
 
-        this.rabbitMQ.publishRPC<{ id: string, name: string }>(QUEUES.USERS.get, { id: userId })
+        this.rabbitMQ.publishRPC<{ id: string, name: string, email: string }>(QUEUES.USERS.get, { id: userId })
             .then(user => {
                 if (!user.id) {
                     return reply({
@@ -56,6 +56,12 @@ export class CreateTicketListener implements RabbitmqRPCListener {
                                         code: 409,
                                     })
                                 }
+
+                                this.rabbitMQ.publish(QUEUES.NOTIFICATION.sendEmail, {
+                                    to: user.email,
+                                    subject: 'Inscription à un évènement',
+                                    content: `Votre inscription pour l'évènement ${event.name} a bien été prise en compte`
+                                }).then()
 
                                 console.log('New ticket created:')
                                 console.log(ticket[0])
