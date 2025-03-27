@@ -1,9 +1,11 @@
 import {RabbitmqRPCListener} from "./rabbitmq-listener";
-import {Events} from "../db/events";
+import {Event, Events} from "../db/events";
+import {RabbitMQ} from "../config/rabbitmq";
+import {QUEUES} from "../config/env";
 
 export class GetEventListener implements RabbitmqRPCListener {
 
-    constructor(private readonly events: Events) {}
+    constructor(private readonly rabbitMQ: RabbitMQ, private readonly events: Events) {}
 
     onMessage(msg: string, reply: (response: object) => void): void {
         const { id, query, active } = JSON.parse(msg);
@@ -23,12 +25,12 @@ export class GetEventListener implements RabbitmqRPCListener {
             request = this.events.getAll()
         }
 
-        request.then(events => {
+        request.then(async (events) => {
             if (id && events.length > 0) {
-                return reply(events[0])
+                return reply(await this.applyRemainingSeats(events[0]))
             }
 
-            reply(events)
+            reply(await Promise.all(events.map(event => this.applyRemainingSeats(event))))
         }).catch(err => {
             console.error(`Failed to get events with filters:
                 - id: ${id},
@@ -43,5 +45,17 @@ export class GetEventListener implements RabbitmqRPCListener {
                 code: 500,
             })
         })
+    }
+
+    private readonly applyRemainingSeats = async (event: Event) => {
+        try {
+            const tickets = await this.rabbitMQ.publishRPC<any[]>(QUEUES.TICKETS.get, { eventId: event.id }, 1000)
+            return {
+                ...event,
+                remainingSeats: event.seats - tickets.length,
+            }
+        } catch (err) {
+            return event
+        }
     }
 }
