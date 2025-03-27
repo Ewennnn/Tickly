@@ -1,0 +1,36 @@
+{
+  "yaakVersion": "2025.1.2",
+  "yaakSchema": 3,
+  "timestamp": "2025-03-27T19:26:20.654147500",
+  "resources": {
+    "workspaces": [
+      {
+        "model": "workspace",
+        "id": "wk_PDnGvXnecb",
+        "createdAt": "2025-03-27T19:22:34.375915900",
+        "updatedAt": "2025-03-27T19:22:34.375916200",
+        "name": "4WEBD - Tickly",
+        "description": "",
+        "settingValidateCertificates": true,
+        "settingFollowRedirects": true,
+        "settingRequestTimeout": 0
+      }
+    ],
+    "environments": [
+      {
+        "model": "environment",
+        "id": "ev_xq58ANUGks",
+        "workspaceId": "wk_PDnGvXnecb",
+        "environmentId": null,
+        "createdAt": "2025-03-27T19:22:34.566401300",
+        "updatedAt": "2025-03-27T19:22:34.566401700",
+        "name": "Global Variables",
+        "variables": []
+      }
+    ],
+    "folders": [],
+    "httpRequests": [],
+    "grpcRequests": [],
+    "websocketRequests": []
+  }
+}

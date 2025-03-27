@@ -3,6 +3,7 @@ services:
     build:
       context: ./tickly-front
     container_name: frontend
+    restart: always
     ports:
       - "4000:4000"
     networks:
@@ -11,6 +12,7 @@ services:
   load-balancer:
     image: nginx:latest
     container_name: load-balancer
+    restart: always
     ports:
       - "3000:3000"
     volumes:
@@ -24,6 +26,8 @@ services:
   # Service RabbitMQ
   rabbitmq:
     image: rabbitmq:management
+    container_name: rabbitmq
+    restart: always
     ports:
       - '5672:5672'  # Broker
       - '15672:15672' # Interface web
@@ -43,6 +47,7 @@ services:
   services-database:
     image: postgres:17.4
     container_name: services-database
+    restart: always
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -58,6 +63,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
+    restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
