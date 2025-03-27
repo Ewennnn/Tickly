@@ -1,13 +1,18 @@
 'use client'
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {CustomButton} from "@/app/components/CustomButton";
 import {AuthModal} from "@/app/components/AuthModal";
 import {primaryColor} from "@/app/globals";
+import Cookies from "js-cookie";
+import Header from "@/app/components/header/Header";
 
-const EventsPage = () => {
+export const EventsPage = () => {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const [isSignupModalOpen, setIsSignupModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('login');
+    const [loadingUser, setLoadingUser] = useState(false)
+    const [reloadUser, setReloadUser] = useState(true)
+    const [user, setUser] = useState<any>()
 
     // Exemple de données d'événements
     const events = [
@@ -73,6 +78,39 @@ const EventsPage = () => {
         }
     ];
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            setLoadingUser(true)
+            const token = Cookies.get('refreshToken'); // Vérifier la présence du token
+            if (token) {
+                const response = await fetch("http://localhost:3000/auth/retrieve", {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+
+                const body = await response.json()
+
+                console.log(body)
+
+                setUser(body); // Remplace par la vraie logique d'appel API pour récupérer les données utilisateur
+            }
+            setLoadingUser(false)
+        };
+
+        fetchUser().finally();
+    }, [reloadUser]);
+
+    const triggerReload = () => {
+        setReloadUser(prev => !prev);
+    };
+
+    const handleLogout = () => {
+        Cookies.remove('refreshToken');
+        setUser(null);
+    };
+
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = {
             day: 'numeric',
@@ -107,26 +145,14 @@ const EventsPage = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="shadow-md" style={{ backgroundColor: primaryColor }}>
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <div className="text-2xl font-bold text-white">Tickly</div>
-                    <div className="flex space-x-4">
-                        <CustomButton
-                            onClick={toggleLoginModal}
-                            primary={false}
-                        >
-                            Connexion
-                        </CustomButton>
-                        <CustomButton
-                            onClick={toggleSignupModal}
-                            primary={true}
-                            className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white"
-                        >
-                            S'inscrire
-                        </CustomButton>
-                    </div>
-                </div>
-            </header>
+            <Header
+                user={user}
+                loadingUser={loadingUser}
+                handleLogout={handleLogout}
+                toggleLoginModal={toggleLoginModal}
+                toggleSignupModal={toggleSignupModal}
+            />
+
 
             {/* Main content */}
             <main className="container mx-auto px-4 py-8">
@@ -239,6 +265,7 @@ const EventsPage = () => {
                 setActiveTab={setActiveTab}
                 setIsLoginModalOpen={setIsLoginModalOpen}
                 setIsSignupModalOpen={setIsSignupModalOpen}
+                triggerReloadUser={triggerReload}
             />
         </div>
     );

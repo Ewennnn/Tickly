@@ -10,15 +10,17 @@ export const AuthModal = (
         isSignupModalOpen,
         setActiveTab,
         setIsLoginModalOpen,
-        setIsSignupModalOpen
+        setIsSignupModalOpen,
+        triggerReloadUser,
     }:
     {
-        activeTab: string,
-        isLoginModalOpen: boolean,
-        isSignupModalOpen: boolean,
-        setActiveTab: (arg: string) => void,
-        setIsLoginModalOpen: (arg: boolean) => void,
+        activeTab: string
+        isLoginModalOpen: boolean
+        isSignupModalOpen: boolean
+        setActiveTab: (arg: string) => void
+        setIsLoginModalOpen: (arg: boolean) => void
         setIsSignupModalOpen: (arg: boolean) => void
+        triggerReloadUser: () => void
     }
 ) => {
     const isOpen = isLoginModalOpen || isSignupModalOpen;
@@ -28,8 +30,8 @@ export const AuthModal = (
             setIsSignupModalOpen(false);
         }}>
             {activeTab === 'login'
-                ? <LoginForm setActiveTab={setActiveTab}/>
-                : <SignupForm setActiveTab={setActiveTab}/>
+                ? <LoginForm setIsLoginModalOpen={setIsLoginModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
+                : <SignupForm setIsSignupModalOpen={setIsSignupModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
             }
         </Modal>
     );
