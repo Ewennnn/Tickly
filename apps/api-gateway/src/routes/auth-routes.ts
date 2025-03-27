@@ -33,6 +33,7 @@ export class AuthRoutes implements RoutesDeclarator {
     declareRoutes(): void {
         this.app.post('/auth/login', this.login)
         this.app.post('/auth/refresh', this.refresh)
+        this.app.post('/auth/retrieve', this.retrieve)
         this.app.post('/auth/logout', this.logout)
     }
 
@@ -73,6 +74,28 @@ export class AuthRoutes implements RoutesDeclarator {
             return c.json({ error: 'No response received from service'}, 500)
         }
 
+    }
+
+    private readonly retrieve = async (c: Context) => {
+        const { authorization } = c.req.header()
+
+        console.log(authorization)
+        if (!authorization.startsWith('Bearer ')) {
+            return c.json({
+                error: 'Invalid authorization token',
+                code: 401,
+            })
+        }
+
+        const refreshToken = authorization.substring(7)
+        console.log(refreshToken)
+
+        try {
+            const user = await this.rabbitMQ.publishRPC<ServiceResponse>(QUEUES.AUTH.getUserFromRefreshToken, { refreshToken })
+            return this.doResponse(c, user)
+        } catch (err) {
+
+        }
     }
 
     private readonly logout = async (c: Context) => {

@@ -26,6 +26,7 @@ export const QUEUES = {
     AUTH: {
         login: "login_queue",
         refreshToken: "refresh_token_queue",
+        getUserFromRefreshToken: "get_user_from_refresh_token_queue",
         logout: "logout_queue",
     },
     NOTIFICATION: {

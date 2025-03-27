@@ -4,6 +4,7 @@ import {Authentication} from "./db/authentication";
 import {LoginUserListener} from "./listeners/login-user-listener";
 import {RefreshTokenListener} from "./listeners/refresh-token-listener";
 import {LogoutUserListener} from "./listeners/logout-user-listener";
+import {GetUserFromToken} from "./listeners/get-user-from-token";
 
 (async () => {
     try {
@@ -24,4 +25,5 @@ async function main() {
     await rabbitMQ.consumeRPC(QUEUES.AUTH.login, (msg, reply) => new LoginUserListener(rabbitMQ, authentication).onMessage(msg, reply))
     await rabbitMQ.consumeRPC(QUEUES.AUTH.refreshToken, (msg, reply) => new RefreshTokenListener(authentication).onMessage(msg, reply))
     await rabbitMQ.consume(QUEUES.AUTH.logout, msg => new LogoutUserListener(rabbitMQ, authentication).onMessage(msg))
+    await rabbitMQ.consumeRPC(QUEUES.AUTH.getUserFromRefreshToken, (msg, reply) => new GetUserFromToken(rabbitMQ, authentication).onMessage(msg, reply))
 }
