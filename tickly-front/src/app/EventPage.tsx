@@ -5,6 +5,7 @@ import {AuthModal} from "@/app/components/AuthModal";
 import {primaryColor} from "@/app/globals";
 import Cookies from "js-cookie";
 import Header from "@/app/components/header/Header";
+import EventSlider from "@/app/components/EventSlider";
 
 type Event = {
     id: string
@@ -126,11 +127,7 @@ export const EventsPage = () => {
                             <div className="bg-white rounded-xl shadow-md overflow-hidden h-full hover:shadow-lg transition-all duration-300 flex flex-col">
                                 {/* Image */}
                                 <div className="relative h-48 bg-gray-200">
-                                    <img
-                                        src={event.images[0]}
-                                        alt={event.name}
-                                        className="w-full h-full object-cover"
-                                    />
+                                    <EventSlider images={event.images} />
                                 </div>
 
                                 <div className="p-6 flex flex-col flex-grow">
