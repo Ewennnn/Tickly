@@ -111,6 +111,7 @@ Pour cela, suivez ces étapes :
 - Sécuriser l'accès à RabbitMQ, qui a été mis en place en privilégiant le bon fonctionnement au détriment de la sécurité.
 - Améliorer la structure et l’optimisation du frontend, notamment en évitant de répéter l’appel à la gateway sur chaque page pour récupérer l’utilisateur authentifié.
 - Proposer une documentation plus poussée de l'application, notamment une interface OpenAPI et la structure des objets échangés entre les micro-services.
+- Refaire le frontend de l'application. Il a entièrement été réalisé avec l'intelligence artificielle Claude pour un gain de temps considérable. Il est loin d'être optimal mais propose la globalité des fonctionnalités présentes.
 
 ## Disclaimer
 
