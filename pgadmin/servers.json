@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "services-database",
+      "Group": "Servers",
+      "Host": "services-database",
+      "Port": 5432,
+      "MaintenanceDB": "public",
+      "Username": "root",
+      "PassFile": "/pgpass",
+      "SSLMode": "prefer",
+      "ConnectNow": true
+    }
+  }
+}
