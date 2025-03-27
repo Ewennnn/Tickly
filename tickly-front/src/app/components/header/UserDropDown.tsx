@@ -27,17 +27,36 @@ const UserDropdown: React.FC<UserDropdownProps> = ({ user, isDropdownOpen, setIs
                 </svg>
             </button>
             {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg">
+                <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg z-50">
                     <ul>
+                        {/* Lien "Mes tickets" */}
+                        <li>
+                            <a href="/my-tickets" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-t-lg">
+                                Mes tickets
+                            </a>
+                        </li>
+
+                        {/* Lien "Panel administrateur" visible seulement pour les administrateurs */}
+                        {user.role === "ROLE_ADMIN" && (
+                            <li>
+                                <a href="/admin" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                    Panel administrateur
+                                </a>
+                            </li>
+                        )}
+
+                        {/* Lien "Gestion de compte" */}
                         <li>
                             <a href="/account" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                                 Gestion de compte
                             </a>
                         </li>
+
+                        {/* Bouton de déconnexion */}
                         <li>
                             <button
                                 onClick={handleLogout}
-                                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-b-lg"
                             >
                                 Se déconnecter
                             </button>
