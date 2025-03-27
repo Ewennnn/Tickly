@@ -12,6 +12,7 @@ export const AuthModal = (
         setIsLoginModalOpen,
         setIsSignupModalOpen,
         triggerReloadUser,
+        onSuccessfulLogin
     }:
     {
         activeTab: string
@@ -21,6 +22,7 @@ export const AuthModal = (
         setIsLoginModalOpen: (arg: boolean) => void
         setIsSignupModalOpen: (arg: boolean) => void
         triggerReloadUser: () => void
+        onSuccessfulLogin?: () => void
     }
 ) => {
     const isOpen = isLoginModalOpen || isSignupModalOpen;
@@ -30,9 +32,52 @@ export const AuthModal = (
             setIsSignupModalOpen(false);
         }}>
             {activeTab === 'login'
-                ? <LoginForm setIsLoginModalOpen={setIsLoginModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
-                : <SignupForm setIsSignupModalOpen={setIsSignupModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
+                ? <LoginForm
+                    setIsLoginModalOpen={setIsLoginModalOpen}
+                    setActiveTab={setActiveTab}
+                    triggerReloadUser={triggerReloadUser}
+                    onSuccessfulLogin={onSuccessfulLogin}
+                />
+                : <SignupForm
+                    setIsSignupModalOpen={setIsSignupModalOpen}
+                    setActiveTab={setActiveTab}
+                    triggerReloadUser={triggerReloadUser}
+                />
             }
         </Modal>
     );
 };
+
+// export const AuthModal = (
+//     {
+//         activeTab,
+//         isLoginModalOpen,
+//         isSignupModalOpen,
+//         setActiveTab,
+//         setIsLoginModalOpen,
+//         setIsSignupModalOpen,
+//         triggerReloadUser,
+//     }:
+//     {
+//         activeTab: string
+//         isLoginModalOpen: boolean
+//         isSignupModalOpen: boolean
+//         setActiveTab: (arg: string) => void
+//         setIsLoginModalOpen: (arg: boolean) => void
+//         setIsSignupModalOpen: (arg: boolean) => void
+//         triggerReloadUser: () => void
+//     }
+// ) => {
+//     const isOpen = isLoginModalOpen || isSignupModalOpen;
+//     return (
+//         <Modal isOpen={isOpen} onClose={() => {
+//             setIsLoginModalOpen(false);
+//             setIsSignupModalOpen(false);
+//         }}>
+//             {activeTab === 'login'
+//                 ? <LoginForm setIsLoginModalOpen={setIsLoginModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
+//                 : <SignupForm setIsSignupModalOpen={setIsSignupModalOpen} setActiveTab={setActiveTab} triggerReloadUser={triggerReloadUser}/>
+//             }
+//         </Modal>
+//     );
+// };

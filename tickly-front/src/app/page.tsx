@@ -1,7 +1,13 @@
+'use client'
+import { Toaster } from 'sonner';
 import EventsPage from "@/app/EventPage";
+
 
 export default function Home() {
   return (
-      <EventsPage/>
+      <>
+        <EventsPage />
+        <Toaster richColors position="top-right" />
+      </>
   );
 }
